@@ -10,7 +10,7 @@ class App extends React.Component {
             domain: "http://localhost",
             //domain: "http://tiphaineviard.com",
             scale: 'linear',
-            data: {},
+            data: [],
             xcols: [],
             xcol: '',
             ycols: [],
@@ -214,6 +214,7 @@ class App extends React.Component {
             <div className="wrapper">
             <Plot
                 data={this.state.data}
+                wards={this.state.selectedWards}
                 xlabel={this.state.xcol}
                 ylabel={this.state.ycol}    
                 scale={this.state.scale}
