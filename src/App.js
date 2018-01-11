@@ -14,7 +14,8 @@ class App extends React.Component {
             ycols: [],
             ycol: '',
             wards: [],
-            ward: '',
+            numWards: 1,
+            selectedWards: [''],
             err: ''
         };
     }
@@ -67,7 +68,7 @@ class App extends React.Component {
         evt.preventDefault();
         let xcol = encodeURIComponent(this.state.xcol);
         let ycol = encodeURIComponent(this.state.ycol);
-        let ward = encodeURIComponent(this.state.ward);
+        let ward = encodeURIComponent(this.state.selectedWards.join());
         let url = "http://localhost:5000/api/hello/"+ xcol + "/" + ycol + "/" + ward ;
 
         var xhr = new XMLHttpRequest(); 
@@ -110,6 +111,50 @@ class App extends React.Component {
         this.setState({
             scale: newScale
         });
+    }
+
+    createWardSelector() {
+        let items = [];
+
+        for (let i = 0; i < this.state.numWards; i++) {
+            items.push(
+            <div key={i}> 
+                <ReactAutocomplete
+                        items={this.state.wards}
+                        shouldItemRender={(item, value) => item.label.toLowerCase().indexOf(value.toLowerCase()) > -1}
+                        getItemValue={item => item.label}
+                        renderItem={(item, highlighted) =>
+                                      <div
+                                        key={item.id}
+                                        style={{ backgroundColor: highlighted ? '#eee' : 'transparent'}}
+                                      >
+                                        {item.label}
+                                      </div>
+                                    }
+                        value={this.state.selectedWards[i]}
+                        onChange={this.handleWardSelectorChange.bind(this,i)}
+                        onSelect={ward => { let s = this.state.selectedWards; s[i] = ward; this.setState({ selectedWards: s })}}
+                      />
+                    <button onClick={this.handleWardSelectorRemove.bind(this, i)} type="button">-</button>
+            </div>
+            );
+        }
+       return items || null; 
+    }
+
+    handleWardSelectorRemove(i, event) {
+        let s = this.state.selectedWards.slice();
+        s.splice(i, 1);
+        this.setState({
+            numWards: this.state.numWards - 1,
+            selectedWards: s
+        });
+    }
+    
+    handleWardSelectorChange(i, event) {
+        let selectedWards = this.state.selectedWards.slice();
+        selectedWards[i] = event.target.value;
+        this.setState({selectedWards});
     }
 
     render() {
@@ -156,22 +201,10 @@ class App extends React.Component {
             <label>
             for
             </label>
-            <ReactAutocomplete
-                    items={this.state.wards}
-                    shouldItemRender={(item, value) => item.label.toLowerCase().indexOf(value.toLowerCase()) > -1}
-                    getItemValue={item => item.label}
-                    renderItem={(item, highlighted) =>
-                                  <div
-                                    key={item.id}
-                                    style={{ backgroundColor: highlighted ? '#eee' : 'transparent'}}
-                                  >
-                                    {item.label}
-                                  </div>
-                                }
-                    value={this.state.ward}
-                    onChange={e => this.setState({ ward: e.target.value })}
-                    onSelect={ward => this.setState({ ward })}
-                  />
+            {this.createWardSelector()}
+            <button type="button" onClick={() => this.setState({numWards: this.state.numWards + 1})}>+</button>
+            <br/>
+            <br/>
             <input type="submit" value="Plot it!"/>
             </form>
             <br/>
