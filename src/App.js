@@ -22,7 +22,7 @@ class App extends React.Component {
     
     setWards() {
         var xhr = new XMLHttpRequest();
-        let url = "http://localhost:5000/api/info/wards";
+        let url = "http://tiphaineviard.com:5000/api/info/wards";
 
         xhr.open("GET", url, true);
 
@@ -40,7 +40,7 @@ class App extends React.Component {
 
     setColumns() {
         var xhr = new XMLHttpRequest();
-        let url = "http://localhost:5000/api/info/columns";
+        let url = "http://tiphaineviard.com:5000/api/info/columns";
         xhr.open("GET", url, true);
 
         xhr.onload = function() {
@@ -69,7 +69,7 @@ class App extends React.Component {
         let xcol = encodeURIComponent(this.state.xcol);
         let ycol = encodeURIComponent(this.state.ycol);
         let ward = encodeURIComponent(this.state.selectedWards.join());
-        let url = "http://localhost:5000/api/hello/"+ xcol + "/" + ycol + "/" + ward ;
+        let url = "http://tiphaineviard.com:5000/api/hello/"+ xcol + "/" + ycol + "/" + ward ;
 
         var xhr = new XMLHttpRequest(); 
         xhr.open("GET", url, true);
