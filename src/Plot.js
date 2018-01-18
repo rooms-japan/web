@@ -1,21 +1,29 @@
 // Plot.js
 import React from 'react';
-import { XAxis, YAxis, CartesianGrid, LineChart, Tooltip, Line, Brush, ScatterChart, Scatter, Legend } from 'recharts';
+import { XAxis, YAxis, CartesianGrid, LineChart, Tooltip, Line, ScatterChart, Scatter, Legend } from 'recharts';
 
 class Plot extends React.Component {
     constructor() {
         super();
         this.state = {
             // Color palette from Tableau Medium
-            colors: ["rgb(114,158,206)", "rgb(255,158,74)", "rgb(103,191,92)", "rgb(237,102,93)", "rgb(173,139,201)", "rgb(168,120,110)", "rgb(237,151,202)", "rgb(162,162,162)", "rgb(205,204,93)", "rgb(109,204,218)"] 
+            colors: ["rgb(114,158,206)", "rgb(255,158,74)", "rgb(103,191,92)", "rgb(237,102,93)", "rgb(173,139,201)", "rgb(168,120,110)", "rgb(237,151,202)", "rgb(162,162,162)", "rgb(205,204,93)", "rgb(109,204,218)"],
+            opacity: {}
         }
     }
 
-    shouldComponentUpdate(nextProps) {
+    shouldComponentUpdate(nextProps, nextState) {
         const dataChanged = this.props.data !== nextProps.data;
         const scaleChanged = this.props.scale !== nextProps.scale;
-        //const wardsChanged = this.props.wards !== nextProps.wards;
-        return dataChanged || scaleChanged;
+        const opacityChanged = JSON.stringify(this.state.opacity) !== JSON.stringify(nextState.opacity);
+        console.log(opacityChanged);
+        console.log(this.state.opacity);
+        console.log(nextState.opacity);
+        return (
+            dataChanged 
+            || scaleChanged
+            || opacityChanged
+        );
     }
 
     genScatters() {
@@ -24,6 +32,7 @@ class Plot extends React.Component {
         for(let i = 0; i < this.props.wards.length; i++) {
             scatters.push(
              <Scatter
+                key={i}
                 dataKey={this.props.wards[i]}
                 data={
                     this.props.data.filter(
@@ -31,6 +40,7 @@ class Plot extends React.Component {
                 }
                 stroke={this.state.colors[i] || "#000000"}       
                 fill={this.state.colors[i] || "#000000"} 
+                opacity={this.state.opacity[this.props.wards[i]]||0.5}
                 />
             );
         }
@@ -49,6 +59,24 @@ class Plot extends React.Component {
                       <Line type='monotone' dataKey='y' stroke='#82ca9d' fill='#82ca9d' />
                     </LineChart>
         );
+    }
+
+
+    handleMouseEnter(o) {
+        let op = {...this.state.opacity};
+        for ( var i in op) {
+            op[i] = 0.1;
+        }
+        op[o.dataKey] = 1;
+        this.setState({opacity: op});
+    }
+    
+    handleMouseLeave(o) {
+        let op = {...this.state.opacity};
+        for ( var i in op) {
+            op[i] = 0.5;
+        }
+        this.setState({opacity: op});
     }
 
     render() {
@@ -72,7 +100,11 @@ class Plot extends React.Component {
             domain={['dataMin', 'dataMax']}
           />
           <Tooltip />
-          <Legend />
+          <Legend 
+            onMouseEnter={this.handleMouseEnter.bind(this)}
+            onMouseLeave={this.handleMouseLeave.bind(this)}
+          />
+            
         </ScatterChart>
         </div>
         
