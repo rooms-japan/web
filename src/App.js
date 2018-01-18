@@ -2,6 +2,7 @@ import React from 'react';
 import ReactAutocomplete from 'react-autocomplete';
 import './App.css';
 import Plot from './Plot.js';
+
 class App extends React.Component {
     
     constructor() {
@@ -12,14 +13,38 @@ class App extends React.Component {
             scale: 'linear',
             data: [],
             xcols: [],
-            xcol: '',
+            xcol: 'rent',
             ycols: [],
-            ycol: '',
+            ycol: 'size',
             wards: [],
+            selectedWards: ['Shinagawa'],
             numWards: 1,
-            selectedWards: [''],
-            err: ''
+            err: []
         };
+    }
+
+    throwError(msg, level) {
+        /*
+         * Adds an error to the list of encountered errors.
+         *
+         * msg: The error message that will be displayed.
+         * level: The gravity of the error.
+         *        1: warning
+         *        2: error hindering part of the intended behaviour
+         *        3: error hindering most or all intended behaviour
+         */
+        let err = this.state.err;
+
+        for (let i = 0; i < err.length; i++) {
+            if (msg === err[i]) {
+                return;
+            }
+        }
+
+        err.push(msg);
+        this.setState({
+            err: err
+        });
     }
     
     setWards() {
@@ -35,7 +60,9 @@ class App extends React.Component {
             });
         }.bind(this);
 
-        xhr.onerror = function() {alert('Initial err')}
+        xhr.onerror = function() {
+            this.throwError("Could not load initial ward data from database.", 3);
+        }.bind(this);
 
         xhr.send(null);
     }
@@ -53,7 +80,9 @@ class App extends React.Component {
             });
         }.bind(this);
 
-        xhr.onerror = function() {alert('Initial err')}
+        xhr.onerror = function() {
+            this.throwError("Could not load initial data from database.", 3);
+        }.bind(this);
 
         xhr.send(null);
     }
@@ -84,8 +113,9 @@ class App extends React.Component {
 
         }.bind(this);
 
-        // Change for error tooltip
-        xhr.onerror = function() {alert("Err");};
+        xhr.onerror = function() {
+            this.throwError("There was a problem with the request.", 2);
+        }.bind(this);
 
         xhr.send(null);
     };
@@ -114,6 +144,8 @@ class App extends React.Component {
             scale: newScale
         });
     }
+
+
 
     createWardSelector() {
         let items = [];
@@ -159,30 +191,14 @@ class App extends React.Component {
         this.setState({selectedWards});
     }
 
+
+
     render() {
         return (
             <div>
-            <div className="err">{this.state.err}</div>
+            {this.state.err.map(e => <div className="err">{e}</div>)}
             <form onSubmit={this.handleSubmit}>
             <label>I want to plot
-            <ReactAutocomplete
-                    items={this.state.xcols}
-                    shouldItemRender={(item, value) => item.label.toLowerCase().indexOf(value.toLowerCase()) > -1}
-                    getItemValue={item => item.label}
-                    renderItem={(item, highlighted) =>
-                                  <div
-                                    key={item.id}
-                                    style={{ backgroundColor: highlighted ? '#eee' : 'transparent'}}
-                                  >
-                                    {item.label}
-                                  </div>
-                                }
-                    value={this.state.xcol}
-                    onChange={e => this.setState({ xcol: e.target.value })}
-                    onSelect={xcol => this.setState({ xcol })}
-                  />
-            </label>
-            <label>in function of 
             <ReactAutocomplete
                     items={this.state.ycols}
                     shouldItemRender={(item, value) => item.label.toLowerCase().indexOf(value.toLowerCase()) > -1}
@@ -200,11 +216,31 @@ class App extends React.Component {
                     onSelect={ycol => this.setState({ ycol })}
                   />
             </label>
+            <label>in function of 
+            <ReactAutocomplete
+                    items={this.state.xcols}
+                    shouldItemRender={(item, value) => item.label.toLowerCase().indexOf(value.toLowerCase()) > -1}
+                    getItemValue={item => item.label}
+                    renderItem={(item, highlighted) =>
+                                  <div
+                                    key={item.id}
+                                    style={{ backgroundColor: highlighted ? '#eee' : 'transparent'}}
+                                  >
+                                    {item.label}
+                                  </div>
+                                }
+                    value={this.state.xcol}
+                    onChange={e => this.setState({ xcol: e.target.value })}
+                    onSelect={xcol => this.setState({ xcol })}
+                  />
+            </label>
             <label>
             for
             </label>
+            <div>
             {this.createWardSelector()}
             <button type="button" onClick={() => this.setState({numWards: this.state.numWards + 1})}>+</button>
+            </div>
             <br/>
             <br/>
             <input type="submit" value="Plot it!"/>
@@ -219,7 +255,6 @@ class App extends React.Component {
                 ylabel={this.state.ycol}    
                 scale={this.state.scale}
             />
-
             </div>
             </div>
         );
