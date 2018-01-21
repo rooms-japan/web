@@ -8,17 +8,14 @@ class Plot extends React.Component {
         this.state = {
             // Color palette from Tableau Medium
             colors: ["rgb(114,158,206)", "rgb(255,158,74)", "rgb(103,191,92)", "rgb(237,102,93)", "rgb(173,139,201)", "rgb(168,120,110)", "rgb(237,151,202)", "rgb(162,162,162)", "rgb(205,204,93)", "rgb(109,204,218)"],
-            opacity: {}
+            options: {}
         }
     }
 
     shouldComponentUpdate(nextProps, nextState) {
         const dataChanged = this.props.data !== nextProps.data;
         const scaleChanged = this.props.scale !== nextProps.scale;
-        const opacityChanged = JSON.stringify(this.state.opacity) !== JSON.stringify(nextState.opacity);
-        console.log(opacityChanged);
-        console.log(this.state.opacity);
-        console.log(nextState.opacity);
+        const opacityChanged = JSON.stringify(this.state.options) !== JSON.stringify(nextState.options);
         return (
             dataChanged 
             || scaleChanged
@@ -30,62 +27,73 @@ class Plot extends React.Component {
         let scatters = [];
 
         for(let i = 0; i < this.props.wards.length; i++) {
+            if (!(this.props.wards[i] in this.state.options)) {
+                let opt = this.state.options;
+                opt[this.props.wards[i]] = {"opacity": 0.5, "clicked": true};
+                this.setState({options: opt});
+            }
+
+            let opt = this.state.options[this.props.wards[i]]; 
+
             scatters.push(
              <Scatter
                 key={i}
                 dataKey={this.props.wards[i]}
                 data={
-                    this.props.data.filter(
+                    this.props.data.data.filter(
                         (w) => w.ward === this.props.wards[i])
                 }
                 stroke={this.state.colors[i] || "#000000"}       
                 fill={this.state.colors[i] || "#000000"} 
-                opacity={this.state.opacity[this.props.wards[i]]||0.5}
+                opacity={opt.opacity||0.5}
                 />
             );
         }
         return scatters || null;
     }
 
-    genDistX() {
-        let data = [{"x":1, "y":1},{"x":3, "y":9},{"x":5, "y":25}, {"x":7, "y":49}]
+    genDist(data) {
         return (
-            <LineChart width={400} height={400} data={data} syncId="anyId"
+            <LineChart width={600} height={600} data={data} syncId="anyId"
                       margin={{top: 10, right: 30, left: 0, bottom: 0}}>
                       <XAxis dataKey="x"/>
                       <YAxis dataKey="y"/>
-                      <CartesianGrid strokeDasharray="3 3"/>
+                      <CartesianGrid />
                       <Tooltip/>
                       <Line type='monotone' dataKey='y' stroke='#82ca9d' fill='#82ca9d' />
                     </LineChart>
         );
     }
 
+    handleClick(o) {
+        let opt = JSON.parse(JSON.stringify(this.state.options));
+        let s = o.dataKey; 
 
-    handleMouseEnter(o) {
-        let op = {...this.state.opacity};
-        for ( var i in op) {
-            op[i] = 0.1;
+        if(opt[s].clicked) {
+            for(let w in opt) {
+                opt[w].opacity = 0.1;
+            }
+            opt[s].opacity = 0.9;
         }
-        op[o.dataKey] = 1;
-        this.setState({opacity: op});
+        else {
+            for(let w in opt) {
+                opt[w].opacity = 0.5;
+            }
+        }
+
+        opt[s].clicked = !opt[s].clicked;
+        this.setState({options: opt});
     }
     
-    handleMouseLeave(o) {
-        let op = {...this.state.opacity};
-        for ( var i in op) {
-            op[i] = 0.5;
-        }
-        this.setState({opacity: op});
-    }
-
     render() {
         return (
         <div className="plots">
-        <ScatterChart width={600} height={600}
-                      margin={{top: 10, right: 30, left: 0, bottom: 0}} >
+        <div className="distX">{this.genDist(this.props.data.distX)}</div>
+        <div className="scatter">
+            <ScatterChart width={600} height={600}
+                      margin={{top: 10, right: 30, left: 0, bottom: 0}} syncId="anyId" >
           {this.genScatters()}
-          <CartesianGrid stroke="#ccc" strokeDashArray="5 5"/>
+          <CartesianGrid />
           <XAxis
             label={this.props.xlabel}
             domain={['auto', 'auto']}
@@ -101,13 +109,13 @@ class Plot extends React.Component {
           />
           <Tooltip />
           <Legend 
-            onMouseEnter={this.handleMouseEnter.bind(this)}
-            onMouseLeave={this.handleMouseLeave.bind(this)}
+            onClick={this.handleClick.bind(this)}
           />
             
         </ScatterChart>
         </div>
-        
+        <div className="distY">{this.genDist(this.props.data.distY)}</div>
+        </div>
         );
     }
 

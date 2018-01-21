@@ -20,8 +20,15 @@ input {
   outline: none;
 }
 
+.plots div{
+  display: inline;
+
+}
+
+.distY{
+}
+
 .wrapper {
-  max-width: 680px;
   margin: 0 auto;
 }
 

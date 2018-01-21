@@ -11,7 +11,7 @@ class App extends React.Component {
             domain: "http://localhost",
             //domain: "http://tiphaineviard.com",
             scale: 'linear',
-            data: [],
+            data: {"data":[], "distX": [], "distY": []},
             xcols: [],
             xcol: 'rent',
             ycols: [],
@@ -93,8 +93,6 @@ class App extends React.Component {
         this.setWards();
     }
 
-
-
     handleSubmit = (evt) => {
         evt.preventDefault();
         let xcol = encodeURIComponent(this.state.xcol);
@@ -107,6 +105,7 @@ class App extends React.Component {
 
         xhr.onload = function() {
             let data = JSON.parse(xhr.response);
+            console.log(data);
             this.setState({
                 data:data
             });
@@ -132,21 +131,6 @@ class App extends React.Component {
         });
     };
 
-    setLogX = () => {
-        let newScale;
-        if(this.state.scale === "log") {
-            newScale = "linear"; 
-        }
-        else {
-            newScale = "log";
-        }
-        this.setState({
-            scale: newScale
-        });
-    }
-
-
-
     createWardSelector() {
         let items = [];
 
@@ -168,6 +152,7 @@ class App extends React.Component {
                         value={this.state.selectedWards[i]}
                         onChange={this.handleWardSelectorChange.bind(this,i)}
                         onSelect={ward => { let s = this.state.selectedWards; s[i] = ward; this.setState({ selectedWards: s })}}
+                        
                       />
                     <button onClick={this.handleWardSelectorRemove.bind(this, i)} type="button">-</button>
             </div>
