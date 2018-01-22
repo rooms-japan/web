@@ -203,7 +203,7 @@ class App extends React.Component {
             {this.state.err.map(e => <div className="err">{e}</div>)}
             <form onSubmit={this.handleSubmit}>
             <label>I want to plot
-            /* Field for x axis */
+            {/* Field for x axis */}
             <ReactAutocomplete
                     items={this.state.ycols}
                     shouldItemRender={(item, value) => item.label.toLowerCase().indexOf(value.toLowerCase()) > -1}
@@ -222,7 +222,7 @@ class App extends React.Component {
                   />
             </label>
             <label>in function of 
-            /* Field for y axis */
+            {/* Field for y axis */}
             <ReactAutocomplete
                     items={this.state.xcols}
                     shouldItemRender={(item, value) => item.label.toLowerCase().indexOf(value.toLowerCase()) > -1}
@@ -244,7 +244,7 @@ class App extends React.Component {
             for
             </label>
             <div>
-            /* Ward selector */
+            {/* Ward selector */}
             {this.createWardSelector()}
             <button type="button" onClick={() => this.setState({numWards: this.state.numWards + 1})}>+</button>
             </div>
@@ -255,7 +255,7 @@ class App extends React.Component {
             <br/>
             <br/>
             <div className="wrapper">
-            /* Plots for data and distributions */
+            {/* Plots for data and distributions */}
             <Plot
                 data={this.state.data}
                 wards={this.state.selectedWards}

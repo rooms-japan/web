@@ -108,9 +108,9 @@ class Plot extends React.Component {
     render() {
         return (
             <div className="plots">
-                /* x-axis distribution */
+                {/* x-axis distribution */}
                 <div className="distX">{this.genDist(this.props.data.distX)}</div>
-                /* Main plot */
+                {/* Main plot */}
                 <div className="scatter">
                     <ScatterChart width={600} height={600}
                         margin={{top: 10, right: 30, left: 0, bottom: 0}} syncId="anyId" >
@@ -136,7 +136,7 @@ class Plot extends React.Component {
 
                     </ScatterChart>
                 </div>
-                /* y-axis distribution */
+                {/* y-axis distribution */}
                 <div className="distY">{this.genDist(this.props.data.distY)}</div>
             </div>
         );
