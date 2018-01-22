@@ -13,17 +13,23 @@ class Plot extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
+        /*
+         * Update plot only if data, scale or options have changed.
+         */
         const dataChanged = this.props.data !== nextProps.data;
         const scaleChanged = this.props.scale !== nextProps.scale;
-        const opacityChanged = JSON.stringify(this.state.options) !== JSON.stringify(nextState.options);
+        const optionsChanged = JSON.stringify(this.state.options) !== JSON.stringify(nextState.options);
         return (
             dataChanged 
             || scaleChanged
-            || opacityChanged
+            || optionsChanged
         );
     }
 
     genScatters() {
+        /*
+         * Create <Scatter/> objects for each ward selected.
+         */
         let scatters = [];
 
         for(let i = 0; i < this.props.wards.length; i++) {
@@ -34,9 +40,8 @@ class Plot extends React.Component {
             }
 
             let opt = this.state.options[this.props.wards[i]]; 
-
             scatters.push(
-             <Scatter
+                <Scatter
                 key={i}
                 dataKey={this.props.wards[i]}
                 data={
@@ -53,19 +58,34 @@ class Plot extends React.Component {
     }
 
     genDist(data) {
+        /*
+         * Create LineChart objects for distributions of values.
+         */
         return (
             <LineChart width={600} height={600} data={data} syncId="anyId"
-                      margin={{top: 10, right: 30, left: 0, bottom: 0}}>
-                      <XAxis dataKey="x"/>
-                      <YAxis dataKey="y"/>
-                      <CartesianGrid />
-                      <Tooltip/>
-                      <Line type='monotone' dataKey='y' stroke='#82ca9d' fill='#82ca9d' />
-                    </LineChart>
+            margin={{top: 10, right: 30, left: 0, bottom: 0}}>
+            <XAxis
+            label="x"
+            dataKey="x"
+            />
+            <YAxis 
+            label={this.props.xlabel + " distribution"}
+            dataKey="y"
+            />
+            <CartesianGrid />
+            <Tooltip/>
+            <Line type='monotone' dataKey='y' stroke='#82ca9d' fill='#82ca9d' />
+            </LineChart>
         );
     }
 
-    handleClick(o) {
+    handleLegendClick(o) {
+        /*
+         * Handler for clicks on main plot legend. On click, the clicked ward is more opaque while all others become nearly transparent.
+         * On second click, transparency reverts to default (0.5)
+         *
+         * TODO: Put clicked element in bold font
+         */
         let opt = JSON.parse(JSON.stringify(this.state.options));
         let s = o.dataKey; 
 
@@ -84,38 +104,41 @@ class Plot extends React.Component {
         opt[s].clicked = !opt[s].clicked;
         this.setState({options: opt});
     }
-    
+
     render() {
         return (
-        <div className="plots">
-        <div className="distX">{this.genDist(this.props.data.distX)}</div>
-        <div className="scatter">
-            <ScatterChart width={600} height={600}
-                      margin={{top: 10, right: 30, left: 0, bottom: 0}} syncId="anyId" >
-          {this.genScatters()}
-          <CartesianGrid />
-          <XAxis
-            label={this.props.xlabel}
-            domain={['auto', 'auto']}
-            scale="linear"
-            dataKey="x"
-            type="number"
-          />
-          <YAxis
-            label={this.props.ylabel}
-            dataKey="y"
-            scale='linear'
-            domain={['dataMin', 'dataMax']}
-          />
-          <Tooltip />
-          <Legend 
-            onClick={this.handleClick.bind(this)}
-          />
-            
-        </ScatterChart>
-        </div>
-        <div className="distY">{this.genDist(this.props.data.distY)}</div>
-        </div>
+            <div className="plots">
+                /* x-axis distribution */
+                <div className="distX">{this.genDist(this.props.data.distX)}</div>
+                /* Main plot */
+                <div className="scatter">
+                    <ScatterChart width={600} height={600}
+                        margin={{top: 10, right: 30, left: 0, bottom: 0}} syncId="anyId" >
+                        {this.genScatters()}
+                        <CartesianGrid />
+                        <XAxis
+                        label={this.props.xlabel}
+                        domain={['auto', 'auto']}
+                        scale="linear"
+                        dataKey="x"
+                        type="number"
+                        />
+                        <YAxis
+                        label={this.props.ylabel}
+                        dataKey="y"
+                        scale='linear'
+                        domain={['dataMin', 'dataMax']}
+                    />
+                    <Tooltip />
+                    <Legend 
+                        onClick={this.handleLegendClick.bind(this)}
+                    />
+
+                    </ScatterChart>
+                </div>
+                /* y-axis distribution */
+                <div className="distY">{this.genDist(this.props.data.distY)}</div>
+            </div>
         );
     }
 
