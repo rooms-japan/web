@@ -4,23 +4,17 @@ import './App.css';
 import Plot from './Plot.js';
 
 class App extends React.Component {
-    
-    constructor() {
-        super();
-        this.state = {
-            domain: "http://localhost",
-            //domain: "http://tiphaineviard.com",
-            scale: 'linear',
-            data: {"data":[], "distX": [], "distY": []},
-            xcols: [],
-            xcol: 'rent',
-            ycols: [],
-            ycol: 'size',
-            wards: [],
-            selectedWards: ['Shinagawa'],
-            numWards: 1,
-            err: []
-        };
+    state = {
+        scale: 'linear',
+        data: {"data":[], "distX": [], "distY": []},
+        xcols: [],
+        xcol: 'rent',
+        ycols: [],
+        ycol: 'size',
+        wards: [],
+        selectedWards: ['Shinagawa'],
+        numWards: 1,
+        err: []
     }
 
     throwError(msg, level) {
@@ -46,88 +40,40 @@ class App extends React.Component {
             err: err
         });
     }
-    
-    setWards() {
-        /*
-         * Collects ward information from API to put in state.
-         */
-        var xhr = new XMLHttpRequest();
-        let url = this.state.domain + ":5000/api/info/wards";
-
-        xhr.open("GET", url, true);
-
-        xhr.onload = function() {
-            let data = JSON.parse(xhr.response);
-            this.setState({
-                wards: data
-            });
-        }.bind(this);
-
-        xhr.onerror = function() {
-            this.throwError("Could not load initial ward data from database.", 3);
-        }.bind(this);
-
-        xhr.send(null);
-    }
-
-    setColumns() {
-        /*
-         * Collects column (fields) information in database from API to put in state.
-         */
-        var xhr = new XMLHttpRequest();
-        let url = this.state.domain + ":5000/api/info/columns";
-        xhr.open("GET", url, true);
-
-        xhr.onload = function() {
-            let data = JSON.parse(xhr.response);
-            this.setState({
-                xcols: data,
-                ycols: data
-            });
-        }.bind(this);
-
-        xhr.onerror = function() {
-            this.throwError("Could not load initial data from database.", 3);
-        }.bind(this);
-
-        xhr.send(null);
-    }
 
     componentDidMount() {
-        // Set list of wards and table columns
-        this.setColumns();
-        this.setWards();
+        const { store } = this.props
+
+        store.get('wards')
+            .then((wards) => { this.setState((prev) => ({ ...prev, wards })) })
+            .catch((error) => {
+                this.throwError("Could not load initial ward data from database.", 3);
+            })
+
+        store.get('columns')
+            .then((columns) => { this.setState((prev) => ({ ...prev, columns })) })
+            .catch((error) => {
+            this.throwError("Could not load initial data from database.", 3);
+        })
     }
 
     handleSubmit = (evt) => {
-        /*
-         * On form submit, the database is queried and plots are updated.
-         */
         evt.preventDefault();
+
+        const { store } = this.props
+
         let xcol = encodeURIComponent(this.state.xcol);
         let ycol = encodeURIComponent(this.state.ycol);
         let ward = encodeURIComponent(this.state.selectedWards.join());
-        let url = this.state.domain + ":5000/api/hello/"+ xcol + "/" + ycol + "/" + ward ;
 
-        var xhr = new XMLHttpRequest(); 
-        xhr.open("GET", url, true);
-
-        xhr.onload = function() {
-            let data = JSON.parse(xhr.response);
-            console.log(data);
-            this.setState({
-                data:data
-            });
-
-        }.bind(this);
-
-        xhr.onerror = function() {
-            this.throwError("There was a problem with the request.", 2);
-        }.bind(this);
-
-        xhr.send(null);
+        store.get('data', { xcol, ycol, ward })
+            .then((data) => {
+                this.setState(prev => ({ ...prev, data}))
+            })
+            .catch(error => {
+                this.throwError("There was a problem with the request.", 2);
+            })
     };
-
 
     changeXCol = (evt) => {
         this.setState({
