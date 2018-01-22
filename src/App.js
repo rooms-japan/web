@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactAutocomplete from 'react-autocomplete';
 
-import Plot from './Plot.js';
 import Error from './components/Error'
+import Plot from './components/Plot';
 
 import './App.css';
 
@@ -152,7 +152,7 @@ class App extends React.Component {
         return (
             <div>
             {errors.map(({message, level}) => <Error level={level}>{message}</Error>)}
-            
+
             <form onSubmit={this.handleSubmit}>
             <label>I want to plot
             {/* Field for x axis */}
