@@ -48,6 +48,9 @@ class App extends React.Component {
     }
     
     setWards() {
+        /*
+         * Collects ward information from API to put in state.
+         */
         var xhr = new XMLHttpRequest();
         let url = this.state.domain + ":5000/api/info/wards";
 
@@ -68,6 +71,9 @@ class App extends React.Component {
     }
 
     setColumns() {
+        /*
+         * Collects column (fields) information in database from API to put in state.
+         */
         var xhr = new XMLHttpRequest();
         let url = this.state.domain + ":5000/api/info/columns";
         xhr.open("GET", url, true);
@@ -94,6 +100,9 @@ class App extends React.Component {
     }
 
     handleSubmit = (evt) => {
+        /*
+         * On form submit, the database is queried and plots are updated.
+         */
         evt.preventDefault();
         let xcol = encodeURIComponent(this.state.xcol);
         let ycol = encodeURIComponent(this.state.ycol);
@@ -132,6 +141,10 @@ class App extends React.Component {
     };
 
     createWardSelector() {
+        /*
+         * Creates a component consisting of input fields (autocomplete), and +/- buttons to add/remove input fields.
+         * Autocomplete data is the list of wards.
+         */
         let items = [];
 
         for (let i = 0; i < this.state.numWards; i++) {
@@ -162,6 +175,9 @@ class App extends React.Component {
     }
 
     handleWardSelectorRemove(i, event) {
+        /*
+         * If the "-" is pressed next to an input in the wardSelector, remove the corresponding ward from the list of selected wards.
+         */
         let s = this.state.selectedWards.slice();
         s.splice(i, 1);
         this.setState({
@@ -171,6 +187,9 @@ class App extends React.Component {
     }
     
     handleWardSelectorChange(i, event) {
+        /*
+         * Add ward to the list of selected wards.
+         */
         let selectedWards = this.state.selectedWards.slice();
         selectedWards[i] = event.target.value;
         this.setState({selectedWards});
@@ -184,6 +203,7 @@ class App extends React.Component {
             {this.state.err.map(e => <div className="err">{e}</div>)}
             <form onSubmit={this.handleSubmit}>
             <label>I want to plot
+            /* Field for x axis */
             <ReactAutocomplete
                     items={this.state.ycols}
                     shouldItemRender={(item, value) => item.label.toLowerCase().indexOf(value.toLowerCase()) > -1}
@@ -202,6 +222,7 @@ class App extends React.Component {
                   />
             </label>
             <label>in function of 
+            /* Field for y axis */
             <ReactAutocomplete
                     items={this.state.xcols}
                     shouldItemRender={(item, value) => item.label.toLowerCase().indexOf(value.toLowerCase()) > -1}
@@ -223,6 +244,7 @@ class App extends React.Component {
             for
             </label>
             <div>
+            /* Ward selector */
             {this.createWardSelector()}
             <button type="button" onClick={() => this.setState({numWards: this.state.numWards + 1})}>+</button>
             </div>
@@ -233,6 +255,7 @@ class App extends React.Component {
             <br/>
             <br/>
             <div className="wrapper">
+            /* Plots for data and distributions */
             <Plot
                 data={this.state.data}
                 wards={this.state.selectedWards}
