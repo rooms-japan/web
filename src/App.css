@@ -22,12 +22,11 @@ input {
   outline: none;
 }
 
-.plots div{
+.plots div {
   display: inline;
-
 }
 
-.distY{
+.distY {
 }
 
 .wrapper {
@@ -56,4 +55,3 @@ input {
   transform: translateX(-50%);
   color: rgba(0, 0, 0, 0.5);
 }
-

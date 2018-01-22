@@ -1,30 +1,30 @@
-import config from '../../config'
-import checkStatus from '../../utils/check-fetch-status'
+import config from '../../config';
+import checkStatus from '../../utils/check-fetch-status';
 
 const api = {
   init: () => {},
   get: async (key, params) => {
     let value, error;
 
-    let resource
+    let resource;
     switch (key) {
       case 'columns':
       case 'wards':
-        resource = `info/${key}`
+        resource = `info/${key}`;
         break;
-      
+
       case 'data':
-        resource = `hello/${params.xcol}/${params.ycol}/${params.ward}`
+        resource = `hello/${params.xcol}/${params.ycol}/${params.ward}`;
         break;
-    
+
       default:
-        resource = key
+        resource = key;
         break;
     }
 
     try {
       value = await fetch(`${config.url.api}/${resource}`, {
-        method: 'GET',
+        method: 'GET'
       })
         .then(checkStatus)
         .then(res => res.json());
@@ -32,8 +32,8 @@ const api = {
       error = err;
     }
 
-    return [value, error]
+    return [value, error];
   }
-}
+};
 
-export default api
+export default api;

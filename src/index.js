@@ -6,7 +6,7 @@ import App from './App';
 import store from './store';
 import registerServiceWorker from './utils/register-service-worker';
 
-store.init()
+store.init();
 
 ReactDOM.render(<App store={store} />, document.getElementById('root'));
 

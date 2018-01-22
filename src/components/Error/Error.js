@@ -1,11 +1,9 @@
-import React from 'react'
+import React from 'react';
 
-import './Error.css'
+import './Error.css';
 
-const Error = ({level = 3, children}) => (
-  <div className={`error error-level-${level}`}>
-    {children}
-  </div>
-)
+const Error = ({ level = 3, children }) => (
+  <div className={`error error-level-${level}`}>{children}</div>
+);
 
-export default Error
+export default Error;

@@ -1,8 +1,8 @@
-import api from './api'
+import api from './api';
 
 const store = {
   init: () => {
-    api.init()
+    api.init();
   },
 
   get: async (key, params) => {
@@ -11,9 +11,9 @@ const store = {
     [value, error] = await api.get(key, params);
 
     return new Promise((resolve, reject) => {
-      value != null ? resolve(value) : reject(error); 
+      value != null ? resolve(value) : reject(error);
     });
   }
-}
+};
 
 export default store;

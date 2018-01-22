@@ -1,1 +1,1 @@
-export { default } from './check-fetch-status'
+export { default } from './check-fetch-status';

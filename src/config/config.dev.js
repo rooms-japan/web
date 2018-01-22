@@ -1,7 +1,7 @@
 const config = {
   url: {
     domain: `http://localhost`,
-    api: `http://localhost:5000/api`
+    api: `http://tiphaineviard.com:5000/api`
   }
 };
 
