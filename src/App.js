@@ -1,7 +1,10 @@
 import React from 'react';
 import ReactAutocomplete from 'react-autocomplete';
-import './App.css';
+
 import Plot from './Plot.js';
+import Error from './components/Error'
+
+import './App.css';
 
 class App extends React.Component {
     state = {
@@ -14,30 +17,30 @@ class App extends React.Component {
         wards: [],
         selectedWards: ['Shinagawa'],
         numWards: 1,
-        err: []
+        errors: []
     }
 
-    throwError(msg, level) {
+    throwError(message, level) {
         /*
          * Adds an error to the list of encountered errors.
          *
-         * msg: The error message that will be displayed.
+         * message: The error message that will be displayed.
          * level: The gravity of the error.
          *        1: warning
          *        2: error hindering part of the intended behaviour
          *        3: error hindering most or all intended behaviour
          */
-        let err = this.state.err;
+        const { errors } = this.state;
 
-        for (let i = 0; i < err.length; i++) {
-            if (msg === err[i]) {
+        for (let i = 0; i < errors.length; i++) {
+            if (message === errors[i]) {
                 return;
             }
         }
 
-        err.push(msg);
+        errors.push({ message, level });
         this.setState({
-            err: err
+            errors
         });
     }
 
@@ -144,9 +147,12 @@ class App extends React.Component {
 
 
     render() {
+        const { errors } = this.state
+
         return (
             <div>
-            {this.state.err.map(e => <div className="err">{e}</div>)}
+            {errors.map(({message, level}) => <Error level={level}>{message}</Error>)}
+            
             <form onSubmit={this.handleSubmit}>
             <label>I want to plot
             {/* Field for x axis */}

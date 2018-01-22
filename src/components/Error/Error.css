@@ -1,0 +1,17 @@
+.error {
+  padding: 12px;
+  margin: 6px 0px;
+}
+
+.error-level-3 {
+  background-color: orange;
+  color: white;
+}
+.error-level-2 {
+  background-color: orangered;
+  color: white;
+}
+.error-level-1 {
+  background-color: red;
+  color: white;
+}
