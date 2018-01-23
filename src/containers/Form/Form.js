@@ -8,8 +8,7 @@ class Form extends Component {
   state = {
     xcol: 'rent',
     ycol: 'size',
-    selectedWards: ['Shinagawa'],
-    numWards: 1,
+    selectedWards: [{ id: this.generateId(), value: 'Shinagawa' }],
     loading: true
   };
 
@@ -32,12 +31,38 @@ class Form extends Component {
     }
   }
 
+  handleAddWardSelector = () => {
+    let { selectedWards } = this.state;
+
+    // Array.push() is a mutating operation so it modifies the current
+    // array instead of returning a new array with the added entry.
+    selectedWards.push({ id: this.generateId(), value: 'Shinagawa' });
+
+    this.setState(prev => ({ ...prev, selectedWards }));
+  };
+
+  handleRemoveWardSelector = () =>
+    this.setState(prev => ({
+      ...prev,
+      selectedWards: prev.selectedWards.filter(w => w.id !== ward.id)
+    }));
+
+  handleSelectWard = value =>
+    this.setState(prev => ({
+      ...prev,
+      selectedWards: prev.selectedWards.map(
+        w => (w.id === ward.id ? { ...ward, value } : w)
+      )
+    }));
+
   handleSubmit = evt => {
     const { store, throwError, clearErrors } = this.props;
 
     let xcol = encodeURIComponent(this.state.xcol);
     let ycol = encodeURIComponent(this.state.ycol);
-    let ward = encodeURIComponent(this.state.selectedWards.join());
+    let ward = encodeURIComponent(
+      this.state.selectedWards.map(ward => ward.value).join()
+    );
 
     evt.preventDefault();
 
@@ -50,7 +75,7 @@ class Form extends Component {
           data,
           xcol,
           ycol,
-          selectedWards: this.state.selectedWards
+          selectedWards: this.state.selectedWards.map(ward => ward.value)
         });
       })
       .catch(error => {
@@ -58,63 +83,14 @@ class Form extends Component {
       });
   };
 
-  createWardSelector() {
-    const { wards } = this.state;
-
-    /*
-     * Creates a component consisting of input fields (autocomplete), and +/- buttons to add/remove input fields.
-     * Autocomplete data is the list of wards.
-     */
-    let items = [];
-
-    for (let i = 0; i < this.state.numWards; i++) {
-      items.push(
-        <div key={i}>
-          <Select
-            elements={wards}
-            value={this.state.selectedWards[i]}
-            onChange={this.handleWardSelectorChange.bind(this, i)}
-            onSelect={ward => {
-              let s = this.state.selectedWards;
-              s[i] = ward;
-              this.setState({ selectedWards: s });
-            }}
-          />
-          <button
-            onClick={this.handleWardSelectorRemove.bind(this, i)}
-            type="button"
-          >
-            -
-          </button>
-        </div>
-      );
-    }
-    return items || null;
-  }
-
-  handleWardSelectorRemove(i, event) {
-    /*
-     * If the "-" is pressed next to an input in the wardSelector, remove the corresponding ward from the list of selected wards.
-     */
-    let s = this.state.selectedWards.slice();
-    s.splice(i, 1);
-    this.setState({
-      numWards: this.state.numWards - 1,
-      selectedWards: s
-    });
-  }
-
-  handleWardSelectorChange(i, event) {
-    /*
-     * Add ward to the list of selected wards.
-     */
-    let selectedWards = this.state.selectedWards.slice();
-    selectedWards[i] = event.target.value;
-    this.setState({ selectedWards });
+  generateId() {
+    return parseInt(new Date().getTime().toString(), 10).toString(36);
   }
 
   render() {
-    const { xcol, ycol, loading, wards, columns } = this.state;
+    const { xcol, ycol, loading, wards, columns, selectedWards } = this.state;
+
+    console.log(selectedWards);
 
     return loading ? (
       <div>Loading</div>
@@ -136,17 +112,24 @@ class Form extends Component {
         />
         <label>for</label>
         <div>
-          {/* Ward selector */}
-          {this.createWardSelector()}
-          <button
-            type="button"
-            onClick={() => this.setState({ numWards: this.state.numWards + 1 })}
-          >
+          {selectedWards.map(ward => (
+            <div key={ward.id}>
+              <Select
+                label={``}
+                elements={wards}
+                defaultSelected={`Shinagawa`}
+                selected={ward.value}
+                onSelect={this.handleSelectWard}
+              />
+              <button type="button" onClick={this.handleRemoveWardSelector}>
+                -
+              </button>
+            </div>
+          ))}
+          <button type="button" onClick={this.handleAddWardSelector}>
             +
           </button>
         </div>
-        <br />
-        <br />
         <input type="submit" value="Plot it!" />
       </form>
     ) : null;

@@ -16,16 +16,11 @@ const Select = ({
       <select
         className="select"
         onChange={e => onSelect(e.target.value)}
-        value={selected}
+        defaultValue={defaultSelected}
       >
         {emptyOption && <option className="select-option" value="" />}
         {elements.map(el => (
-          <option
-            className="select-option"
-            key={el.id}
-            value={el.label}
-            selected={defaultSelected === el.id}
-          >
+          <option className="select-option" key={el.id} value={el.label}>
             {el.label}
           </option>
         ))}
