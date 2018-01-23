@@ -41,13 +41,13 @@ class Form extends Component {
     this.setState(prev => ({ ...prev, selectedWards }));
   };
 
-  handleRemoveWardSelector = () =>
+  handleRemoveWardSelector = ward => () =>
     this.setState(prev => ({
       ...prev,
       selectedWards: prev.selectedWards.filter(w => w.id !== ward.id)
     }));
 
-  handleSelectWard = value =>
+  handleSelectWard = ward => value =>
     this.setState(prev => ({
       ...prev,
       selectedWards: prev.selectedWards.map(
@@ -90,8 +90,6 @@ class Form extends Component {
   render() {
     const { xcol, ycol, loading, wards, columns, selectedWards } = this.state;
 
-    console.log(selectedWards);
-
     return loading ? (
       <div>Loading</div>
     ) : wards && columns ? (
@@ -119,9 +117,12 @@ class Form extends Component {
                 elements={wards}
                 defaultSelected={`Shinagawa`}
                 selected={ward.value}
-                onSelect={this.handleSelectWard}
+                onSelect={this.handleSelectWard(ward)}
               />
-              <button type="button" onClick={this.handleRemoveWardSelector}>
+              <button
+                type="button"
+                onClick={this.handleRemoveWardSelector(ward)}
+              >
                 -
               </button>
             </div>
