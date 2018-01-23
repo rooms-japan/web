@@ -33,13 +33,15 @@ class Form extends Component {
   }
 
   handleSubmit = evt => {
-    const { store, throwError } = this.props;
+    const { store, throwError, clearErrors } = this.props;
 
     let xcol = encodeURIComponent(this.state.xcol);
     let ycol = encodeURIComponent(this.state.ycol);
     let ward = encodeURIComponent(this.state.selectedWards.join());
 
     evt.preventDefault();
+
+    clearErrors();
 
     store
       .get('data', { xcol, ycol, ward })

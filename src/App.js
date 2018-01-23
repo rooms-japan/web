@@ -34,6 +34,10 @@ class App extends React.Component {
     this.setState({ errors });
   };
 
+  clearErrors = () => {
+    this.setState({ errors: [] });
+  };
+
   updatePlotData = data => {
     this.setState(prev => ({ ...prev, ...data }));
   };
@@ -51,6 +55,7 @@ class App extends React.Component {
         <Form
           store={store}
           throwError={this.throwError}
+          clearErrors={this.clearErrors}
           onPlotData={this.updatePlotData}
         />
 
