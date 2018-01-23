@@ -32,7 +32,7 @@ class App extends React.Component {
 
     errors.push({ message, level });
     this.setState({ errors });
-  }
+  };
 
   updatePlotData = data => {
     this.setState(prev => ({ ...prev, ...data }));
@@ -48,10 +48,10 @@ class App extends React.Component {
           <Error level={level}>{message}</Error>
         ))}
 
-        <Form 
-          store={store} 
-          throwError={this.throwError} 
-          onPlotData={this.updatePlotData} 
+        <Form
+          store={store}
+          throwError={this.throwError}
+          onPlotData={this.updatePlotData}
         />
 
         <div className="wrapper">

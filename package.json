@@ -10,6 +10,7 @@
     "recharts": "^1.0.0-beta.7"
   },
   "scripts": {
+    "precommit": "lint-staged",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",

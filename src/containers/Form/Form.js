@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import Select from '../../components/Select'
+import Select from '../../components/Select';
 
 import './Form.css';
 
@@ -16,22 +16,19 @@ class Form extends Component {
   async componentDidMount() {
     const { store, throwError } = this.props;
 
-    this.setState(prev => ({ ...prev, loading: true, error: false }))
+    this.setState(prev => ({ ...prev, loading: true, error: false }));
 
     try {
-      let [
-        wards, 
-        columns
-      ] = await Promise.all([
-        store.get('wards'), 
+      let [wards, columns] = await Promise.all([
+        store.get('wards'),
         store.get('columns')
-      ])
+      ]);
 
       this.setState(prev => ({ ...prev, wards, columns }));
     } catch (err) {
-      throwError("Could not load initial data from database.", 3)
+      throwError('Could not load initial data from database.', 3);
     } finally {
-      this.setState(prev => ({ ...prev, loading: false }))
+      this.setState(prev => ({ ...prev, loading: false }));
     }
   }
 
@@ -60,7 +57,7 @@ class Form extends Component {
   };
 
   createWardSelector() {
-    const { wards } = this.state
+    const { wards } = this.state;
 
     /*
      * Creates a component consisting of input fields (autocomplete), and +/- buttons to add/remove input fields.
@@ -115,23 +112,25 @@ class Form extends Component {
   }
 
   render() {
-    const { xcol, ycol, loading, wards, columns } = this.state
+    const { xcol, ycol, loading, wards, columns } = this.state;
 
-    return (loading) ? <div>Loading</div> : (wards && columns) ? (
+    return loading ? (
+      <div>Loading</div>
+    ) : wards && columns ? (
       <form onSubmit={this.handleSubmit}>
         <Select
           label={`I want to plot `}
           elements={columns}
           defaultSelected={`rent`}
           selected={xcol}
-          onSelect={(xcol) => this.setState(prev => ({ ...prev, xcol }))}
+          onSelect={xcol => this.setState(prev => ({ ...prev, xcol }))}
         />
         <Select
           label={` in function of `}
           elements={columns}
           defaultSelected={`size`}
           selected={ycol}
-          onSelect={(ycol) => this.setState(prev => ({ ...prev, ycol }))}
+          onSelect={ycol => this.setState(prev => ({ ...prev, ycol }))}
         />
         <label>for</label>
         <div>
