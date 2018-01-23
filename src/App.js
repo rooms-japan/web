@@ -12,16 +12,16 @@ class App extends React.Component {
     errors: []
   };
 
-  throwError(message, level) {
+  throwError = (message, level) => {
     /*
-         * Adds an error to the list of encountered errors.
-         *
-         * message: The error message that will be displayed.
-         * level: The gravity of the error.
-         *        1: warning
-         *        2: error hindering part of the intended behaviour
-         *        3: error hindering most or all intended behaviour
-         */
+     * Adds an error to the list of encountered errors.
+     *
+     * message: The error message that will be displayed.
+     * level: The gravity of the error.
+     *        1: warning
+     *        2: error hindering part of the intended behaviour
+     *        3: error hindering most or all intended behaviour
+     */
     const { errors } = this.state;
 
     for (let i = 0; i < errors.length; i++) {
@@ -31,31 +31,7 @@ class App extends React.Component {
     }
 
     errors.push({ message, level });
-    this.setState({
-      errors
-    });
-  }
-
-  componentDidMount() {
-    const { store } = this.props;
-
-    store
-      .get('wards')
-      .then(wards => {
-        this.setState(prev => ({ ...prev, wards }));
-      })
-      .catch(error => {
-        this.throwError('Could not load initial ward data from database.', 3);
-      });
-
-    store
-      .get('columns')
-      .then(columns => {
-        this.setState(prev => ({ ...prev, columns }));
-      })
-      .catch(error => {
-        this.throwError('Could not load initial data from database.', 3);
-      });
+    this.setState({ errors });
   }
 
   updatePlotData = data => {
@@ -64,7 +40,7 @@ class App extends React.Component {
 
   render() {
     const { store } = this.props;
-    const { errors } = this.state;
+    const { columns, wards, errors } = this.state;
 
     return (
       <div>
@@ -72,7 +48,11 @@ class App extends React.Component {
           <Error level={level}>{message}</Error>
         ))}
 
-        <Form store={store} onPlotData={this.updatePlotData} />
+        <Form 
+          store={store} 
+          throwError={this.throwError} 
+          onPlotData={this.updatePlotData} 
+        />
 
         <div className="wrapper">
           {/* Plots for data and distributions */}

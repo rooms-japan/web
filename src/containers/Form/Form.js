@@ -1,24 +1,42 @@
 import React, { Component } from 'react';
-import ReactAutocomplete from 'react-autocomplete';
+
+import Select from '../../components/Select'
 
 import './Form.css';
 
 class Form extends Component {
   state = {
-    scale: 'linear',
-    data: { data: [], distX: [], distY: [] },
-    xcols: [],
     xcol: 'rent',
-    ycols: [],
     ycol: 'size',
-    wards: [],
     selectedWards: ['Shinagawa'],
     numWards: 1,
-    errors: []
+    loading: true
   };
 
+  async componentDidMount() {
+    const { store, throwError } = this.props;
+
+    this.setState(prev => ({ ...prev, loading: true, error: false }))
+
+    try {
+      let [
+        wards, 
+        columns
+      ] = await Promise.all([
+        store.get('wards'), 
+        store.get('columns')
+      ])
+
+      this.setState(prev => ({ ...prev, wards, columns }));
+    } catch (err) {
+      throwError("Could not load initial data from database.", 3)
+    } finally {
+      this.setState(prev => ({ ...prev, loading: false }))
+    }
+  }
+
   handleSubmit = evt => {
-    const { store } = this.props;
+    const { store, throwError } = this.props;
 
     let xcol = encodeURIComponent(this.state.xcol);
     let ycol = encodeURIComponent(this.state.ycol);
@@ -37,11 +55,13 @@ class Form extends Component {
         });
       })
       .catch(error => {
-        this.throwError('There was a problem with the request.', 2);
+        throwError('There was a problem with the request.', 2);
       });
   };
 
   createWardSelector() {
+    const { wards } = this.state
+
     /*
      * Creates a component consisting of input fields (autocomplete), and +/- buttons to add/remove input fields.
      * Autocomplete data is the list of wards.
@@ -51,22 +71,8 @@ class Form extends Component {
     for (let i = 0; i < this.state.numWards; i++) {
       items.push(
         <div key={i}>
-          <ReactAutocomplete
-            items={this.state.wards}
-            shouldItemRender={(item, value) =>
-              item.label.toLowerCase().indexOf(value.toLowerCase()) > -1
-            }
-            getItemValue={item => item.label}
-            renderItem={(item, highlighted) => (
-              <div
-                key={item.id}
-                style={{
-                  backgroundColor: highlighted ? '#eee' : 'transparent'
-                }}
-              >
-                {item.label}
-              </div>
-            )}
+          <Select
+            elements={wards}
             value={this.state.selectedWards[i]}
             onChange={this.handleWardSelectorChange.bind(this, i)}
             onSelect={ward => {
@@ -109,56 +115,24 @@ class Form extends Component {
   }
 
   render() {
-    return (
+    const { xcol, ycol, loading, wards, columns } = this.state
+
+    return (loading) ? <div>Loading</div> : (wards && columns) ? (
       <form onSubmit={this.handleSubmit}>
-        <label>
-          I want to plot
-          {/* Field for x axis */}
-          <ReactAutocomplete
-            items={this.state.ycols}
-            shouldItemRender={(item, value) =>
-              item.label.toLowerCase().indexOf(value.toLowerCase()) > -1
-            }
-            getItemValue={item => item.label}
-            renderItem={(item, highlighted) => (
-              <div
-                key={item.id}
-                style={{
-                  backgroundColor: highlighted ? '#eee' : 'transparent'
-                }}
-              >
-                {item.label}
-              </div>
-            )}
-            value={this.state.ycol}
-            onChange={e => this.setState({ ycol: e.target.value })}
-            onSelect={ycol => this.setState({ ycol })}
-          />
-        </label>
-        <label>
-          in function of
-          {/* Field for y axis */}
-          <ReactAutocomplete
-            items={this.state.xcols}
-            shouldItemRender={(item, value) =>
-              item.label.toLowerCase().indexOf(value.toLowerCase()) > -1
-            }
-            getItemValue={item => item.label}
-            renderItem={(item, highlighted) => (
-              <div
-                key={item.id}
-                style={{
-                  backgroundColor: highlighted ? '#eee' : 'transparent'
-                }}
-              >
-                {item.label}
-              </div>
-            )}
-            value={this.state.xcol}
-            onChange={e => this.setState({ xcol: e.target.value })}
-            onSelect={xcol => this.setState({ xcol })}
-          />
-        </label>
+        <Select
+          label={`I want to plot `}
+          elements={columns}
+          defaultSelected={`rent`}
+          selected={xcol}
+          onSelect={(xcol) => this.setState(prev => ({ ...prev, xcol }))}
+        />
+        <Select
+          label={` in function of `}
+          elements={columns}
+          defaultSelected={`size`}
+          selected={ycol}
+          onSelect={(ycol) => this.setState(prev => ({ ...prev, ycol }))}
+        />
         <label>for</label>
         <div>
           {/* Ward selector */}
@@ -174,7 +148,7 @@ class Form extends Component {
         <br />
         <input type="submit" value="Plot it!" />
       </form>
-    );
+    ) : null;
   }
 }
 
