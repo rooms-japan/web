@@ -84,3 +84,86 @@ class MainGraph(object):
         return self._dcc_scatter
 
     dcc_scatter = property(_get_dcc_scatter)
+
+
+class SideGraph(object):
+    ## XXX make a parent class with common properties with MainGraph
+
+    def __init__(self, df, ward, x, graphid="graph2"):
+        self.id = graphid
+        self._set_ward(ward)
+        self._set_x(x)
+        self.df = df
+        self._data_hist = None
+        self._dcc_hist = None
+
+    def _reset(self):
+        self._data_hist = None
+        self._dcc_hist = None
+
+    def _get_x(self):
+        return self._x
+
+    def _set_x(self, x):
+        self._reset()
+        self._x = x
+
+    x = property(_get_x, _set_x)
+
+    def _get_ward(self):
+        return self._ward
+
+    def _set_ward(self, ward):
+        self._reset()
+        if type(ward) == str:
+            ward = [ward]
+        self._ward = ward
+
+    ward = property(_get_ward, _set_ward)
+
+    def _get_data_hist(self):
+        if self._data_hist is None:
+            data_hist = []
+            for i in self.ward:
+                items_i = list(self.df.loc[self.df.location.str.contains(i, case=False),self.x])
+                hist_i = go.Histogram(
+                    histfunc = "sum",
+                    x = items_i,
+                    y = ["1"]*len(items_i),
+                    name = i
+                )
+                data_hist = data_hist + [hist_i]
+
+            self._data_hist = data_hist
+
+    def _get_dcc_hist(self):
+        if self._data_hist is None:
+            self._get_data_hist()
+
+        if self._dcc_hist is None:
+            self._dcc_hist = dcc.Graph(
+                id=self.id,
+                figure={
+                    'data': self._data_hist,
+                    'layout': go.Layout(
+                            xaxis={'title': self.x},
+                            yaxis={'title': 'count'},
+                            # margin={'l': 40, 'b': 40, 't': 10, 'r': 10},
+                            legend={'x': 0, 'y': 1},
+                            hovermode='closest'
+                        )
+                    }
+                )
+        return self._dcc_hist
+
+    dcc_hist = property(_get_dcc_hist)
+
+
+
+
+
+
+
+
+
+

@@ -6,7 +6,7 @@ import pandas as pd
 import urllib.request
 import json
 
-from MainGraph import MainGraph
+from MainGraph import MainGraph, SideGraph
 #
 
 app = dash.Dash()
@@ -22,10 +22,10 @@ df = pd.read_csv('bdd.csv')
 
 
 # initial values for main plot
-ward = ['shinagawa']
-x = 'layout'
-y = 'rent'
-main_graph = MainGraph(df, ward, x, y)
+# ward = ['shinagawa']
+# x = 'layout'
+# y = 'rent'
+# main_graph = MainGraph(df, ward, x, y)
 
 app.layout = html.Div([
     dcc.Dropdown(
@@ -46,7 +46,8 @@ app.layout = html.Div([
             value='rent',
         ),
     ]),
-    html.Div(id='main-graph')
+    html.Div(id='main-graph'),
+    html.Div(id='side-graph')
 
     # dcc.Graph(
     #     id='main-graph',
@@ -64,11 +65,27 @@ app.layout = html.Div([
     ]
 )
 def update_info(w, x, y):
+    main_graph = MainGraph(df, w, x, y)
     main_graph.x = x
     main_graph.y = y
     main_graph.ward = w
 
     return main_graph.dcc_scatter
+
+
+@app.callback(
+    dash.dependencies.Output('side-graph', 'children'),
+    [
+        dash.dependencies.Input('selectedWards', 'value'),
+        dash.dependencies.Input('x', 'value')
+    ]
+)
+def update_info(w, x,):
+    side_graph = SideGraph(df, w, x)
+    side_graph.x = x
+    side_graph.ward = w
+
+    return side_graph.dcc_hist
 
 # def update_info(w, x, y):
 #     # data = urllib.request.urlopen("").read()
